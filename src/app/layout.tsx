@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
@@ -39,6 +40,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           bg-slate-950 text-slate-100
         "
       >
+        <NextTopLoader
+          color="#ef4444"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+        />
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>
         <Toaster position="top-right" richColors />
