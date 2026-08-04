@@ -92,19 +92,19 @@ export default async function BatchDetailPage({ params }: PageProps) {
       </div>
 
       {/* ── Batch Header Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900/60 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800 p-8 sm:p-10 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-900/60 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800 px-5 py-6 sm:p-8 md:p-10 shadow-xl">
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
 
-            <h1 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
+            <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
               {batch.name}
             </h1>
           </div>
 
           {/* Quick Metrics */}
-          <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-slate-200/60 dark:border-slate-800 pt-4 md:pt-0 md:pl-6">
+          <div className="flex flex-wrap items-center gap-4 border-t md:border-t-0 md:border-l border-slate-200/60 dark:border-slate-800 pt-4 md:pt-0 md:pl-6">
             <div className="text-center px-2">
               <div className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {totalQuestions}

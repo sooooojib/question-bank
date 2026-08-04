@@ -86,7 +86,7 @@ export default function Navbar() {
               aria-label="Open menu"
               className="
                 flex items-center justify-center
-                w-9 h-9 rounded-xl
+                w-11 h-11 rounded-xl
                 bg-slate-800/60
                 border border-slate-700/50
                 transition-all duration-200
@@ -114,7 +114,7 @@ export default function Navbar() {
             <Link href="/upload" onClick={() => setMobileOpen(false)}>
               <Button
                 className="
-                  w-full rounded-xl h-10
+                  w-full rounded-xl h-11
                   bg-gradient-to-r from-indigo-500 to-purple-600
                   hover:from-indigo-600 hover:to-purple-700
                   text-white font-medium text-sm

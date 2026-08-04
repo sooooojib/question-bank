@@ -183,7 +183,7 @@ export default function UploadQuestionPage() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto flex flex-col justify-center">
+    <div className="min-h-screen py-6 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto flex flex-col justify-center">
 
       {/* Back link */}
       <Link
@@ -199,13 +199,13 @@ export default function UploadQuestionPage() {
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
           <Upload className="w-7 h-7 text-white" />
         </div>
-        <h1 className="font-heading text-3xl font-extrabold text-white tracking-tight">
+        <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           Upload Question Paper
         </h1>
       </div>
 
       {/* ── Main Card ── */}
-      <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 md:p-8">
+      <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
         <form id="upload-form" onSubmit={handleSubmit} noValidate>
           <div className="space-y-6">
 
@@ -253,7 +253,7 @@ export default function UploadQuestionPage() {
             </div>
 
             {/* ── 3. SEMESTER & COURSE NAME (2-Column Row) ── */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Semester */}
               <div>
                 <Label className={labelCls}>
@@ -324,7 +324,7 @@ export default function UploadQuestionPage() {
             </div>
 
             {/* ── 4. TEACHER / FACULTY NAME & EXAM YEAR (2-Column Row) ── */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Teacher Name */}
               <div>
                 <Label className={labelCls}>
@@ -461,7 +461,7 @@ export default function UploadQuestionPage() {
       </div>
       {/* ── Oversized File Warning Modal ── */}
       <Dialog open={showSizeModal} onOpenChange={setShowSizeModal}>
-        <DialogContent className="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md shadow-2xl">
+        <DialogContent className="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md w-[92vw] shadow-2xl p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
               <span className="text-2xl">⚠️</span> File Too Large (Limit: 1MB)

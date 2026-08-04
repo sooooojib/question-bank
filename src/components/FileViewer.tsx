@@ -96,47 +96,47 @@ export default function FileViewer({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       {/* ── Floating Modal Dialog ── */}
-      <DialogContent className="sm:max-w-4xl max-w-4xl w-[90vw] h-[85vh] max-h-[85vh] bg-slate-900 border border-slate-800 p-0 flex flex-col overflow-hidden rounded-3xl shadow-2xl z-[100]">
+      <DialogContent className="sm:max-w-4xl max-w-4xl w-[94vw] sm:w-[90vw] h-[90vh] sm:h-[85vh] max-h-[90vh] bg-slate-900 border border-slate-800 p-0 flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl z-[100]">
 
         {/* ── Header Bar ─────────────────────────────────────────────────────── */}
-        <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-900/95">
+        <div className="shrink-0 flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-900/95 gap-2">
           {/* Left: Icon + Title + Badge */}
-          <div className="flex items-center gap-3 min-w-0 flex-1 pr-4">
-            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 shrink-0">
-              <HeaderIcon className="w-4.5 h-4.5" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-1 sm:pr-4">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 shrink-0">
+              <HeaderIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-slate-100 truncate leading-tight">
+              <p className="text-xs sm:text-sm font-bold text-slate-100 truncate leading-tight">
                 {title}
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 hidden sm:block">
                 Department Question Bank Archive
               </p>
             </div>
             <span
-              className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${badgeColor}`}
+              className={`shrink-0 hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border ${badgeColor}`}
             >
               {badgeLabel}
             </span>
           </div>
 
           {/* Right: Download + Open in Tab */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <Button
               size="sm"
               onClick={handleDownload}
               disabled={isDownloading}
-              className="h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all"
+              className="h-8 sm:h-9 px-2.5 sm:px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all"
             >
               {isDownloading ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  Downloading…
+                  <Loader2 className="w-3.5 h-3.5 sm:mr-1.5 animate-spin" />
+                  <span className="hidden sm:inline">Downloading…</span>
                 </>
               ) : (
                 <>
-                  <Download className="w-3.5 h-3.5 mr-1.5" />
-                  Download
+                  <Download className="w-3.5 h-3.5 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Download</span>
                 </>
               )}
             </Button>
