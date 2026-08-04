@@ -2,6 +2,8 @@
 
 A web application designed for university students and department archives to organize, search, and access past examination papers. Question papers are indexed by department batch, semester (1.1 through 4.2), course name, faculty member, and exam type.
 
+🌐 **Live Website**: [https://question-bank-seven-mu.vercel.app](https://question-bank-seven-mu.vercel.app)
+
 ---
 
 ## 🌟 Key Features
@@ -15,6 +17,13 @@ A web application designed for university students and department archives to or
 - **Upload Validation & Storage Protection**: Enforces a 1MB file size limit with built-in compression warnings and direct integration with PDF compression tools.
 - **Responsive Dark Theme**: Fully optimized for mobile screens, tablets, and desktop devices.
 - **Page Loading Indicator**: Smooth red top progress bar during page navigation powered by `nextjs-toploader`.
+
+---
+
+## 🌐 Live Website
+
+Access the live university question bank archive here:  
+👉 **[https://question-bank-seven-mu.vercel.app](https://question-bank-seven-mu.vercel.app)**
 
 ---
 
@@ -51,49 +60,4 @@ A web application designed for university students and department archives to or
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **UI Components**: Shadcn UI primitives, Sonner (Toast notifications)
 - **Top Loader**: `nextjs-toploader`
-
----
-
-## 🚀 Getting Started Locally
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/sooooojib/question-bank.git
-cd question-bank
-```
-
-### 2. Install Dependencies
-```bash
-npm install
-```
-
-### 3. Configure Environment Variables
-Create a `.env.local` file in the root directory and add your Supabase credentials:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-### 4. Set Up the Supabase Database
-Run the SQL script provided in `supabase-schema.sql` inside your Supabase SQL Editor. This script creates:
-- `batches` table
-- `questions` table
-- Indexes for fast query performance
-- Row Level Security (RLS) policies for read/write access
-- `question-bank` public storage bucket
-
-### 5. Run the Development Server
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 🌐 Free Deployment (Vercel)
-
-1. Push your repository to GitHub.
-2. Import your repository into [Vercel](https://vercel.com).
-3. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` under **Environment Variables**.
-4. Click **Deploy**. Vercel will build and deploy the application automatically.
+- **Hosting**: [Vercel](https://vercel.com)
