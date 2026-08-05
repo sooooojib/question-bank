@@ -15,6 +15,8 @@ export interface QuestionRecord {
   file_url: string;
   file_type: string;
   created_at: string;
+  batch_name?: string;
+  batches?: { name: string } | null;
 }
 
 export interface BatchData {
@@ -46,13 +48,18 @@ async function getBatchData(id: string): Promise<{ batch: BatchData; questions: 
     // 2. Fetch questions for this batch
     const { data: questions, error: questionsError } = await supabase
       .from("questions")
-      .select("*")
+      .select("*, batches(name)")
       .eq("batch_id", id)
-      .order("year", { ascending: false });
+      .order("created_at", { ascending: false });
+
+    const formattedQuestions = (questions || []).map((q: any) => ({
+      ...q,
+      batch_name: Array.isArray(q.batches) ? q.batches[0]?.name : q.batches?.name || batch.name || "",
+    }));
 
     return {
       batch,
-      questions: questions || [],
+      questions: formattedQuestions,
     };
   } catch (err) {
     return {

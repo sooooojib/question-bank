@@ -21,8 +21,10 @@ import {
   Layers,
   Filter,
   BookOpen,
+  FolderKanban,
 } from "lucide-react";
 import type { QuestionRecord } from "@/app/batch/[id]/page";
+import { formatBatchSemesterTag } from "@/lib/courses";
 
 const EXAM_FILTER_OPTIONS = [
   { value: "All", label: "All Types" },
@@ -36,9 +38,10 @@ const EXAM_FILTER_OPTIONS = [
 
 interface BatchQuestionExplorerProps {
   questions: QuestionRecord[];
+  batchName?: string;
 }
 
-export default function BatchQuestionExplorer({ questions }: BatchQuestionExplorerProps) {
+export default function BatchQuestionExplorer({ questions, batchName }: BatchQuestionExplorerProps) {
   // 1. Group questions by semester first so defaultTab can be used in state
   const semesterMap: Record<string, QuestionRecord[]> = {};
   questions.forEach((q) => {
@@ -200,7 +203,7 @@ export default function BatchQuestionExplorer({ questions }: BatchQuestionExplor
                           </div>
                         </div>
 
-                        {/* MIDDLE: Exam Type Badge + Year + File Type */}
+                        {/* MIDDLE: Exam Type Badge + Batch-Semester Tag + File Type */}
                         <div className="flex flex-wrap items-center gap-3 shrink-0">
                           <Badge
                             className={`px-3 py-1 text-xs font-semibold rounded-lg border ${getExamBadgeStyle(q.exam_type)}`}
@@ -209,8 +212,8 @@ export default function BatchQuestionExplorer({ questions }: BatchQuestionExplor
                           </Badge>
 
                           <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700/60">
-                            <Calendar className="w-3.5 h-3.5 text-indigo-500" />
-                            <span>Year: {q.year}</span>
+                            <FolderKanban className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>{formatBatchSemesterTag(q.batch_name || (Array.isArray(q.batches) ? q.batches[0]?.name : q.batches?.name) || batchName, q.semester)}</span>
                           </div>
 
                           <Badge variant="outline" className="text-xs uppercase text-slate-400 border-slate-700">

@@ -5,8 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import FileViewer from "@/components/FileViewer";
-import { FileText, User, Calendar, Eye } from "lucide-react";
+import { FileText, User, Eye, FolderKanban } from "lucide-react";
 import type { QuestionRecord } from "@/app/batch/[id]/page";
+import { formatBatchSemesterTag } from "@/lib/courses";
 
 interface SearchResultsExplorerProps {
   questions: QuestionRecord[];
@@ -47,82 +48,85 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {questions.map((q) => (
-          <Card
-            key={q.id}
-            className="
-              relative overflow-hidden rounded-2xl p-5 sm:p-6
-              bg-white/80 dark:bg-slate-900/70 backdrop-blur-md
-              border border-slate-200/80 dark:border-slate-800
-              hover:border-indigo-400/60 dark:hover:border-indigo-500/50
-              hover:shadow-xl hover:shadow-indigo-500/5
-              transition-all duration-300
-            "
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              {/* LEFT: Course Name (Bold) & Teacher Name (Subtext) */}
-              <div className="flex items-start gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                  <FileText className="w-6 h-6" />
+        {questions.map((q) => {
+          const batchName = q.batch_name || (Array.isArray(q.batches) ? q.batches[0]?.name : q.batches?.name);
+          const tag = formatBatchSemesterTag(batchName, q.semester);
+
+          return (
+            <Card
+              key={q.id}
+              className="
+                relative overflow-hidden rounded-2xl p-5 sm:p-6
+                bg-white/80 dark:bg-slate-900/70 backdrop-blur-md
+                border border-slate-200/80 dark:border-slate-800
+                hover:border-indigo-400/60 dark:hover:border-indigo-500/50
+                hover:shadow-xl hover:shadow-indigo-500/5
+                transition-all duration-300
+              "
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                {/* LEFT: Course Name (Bold) & Teacher Name (Subtext) */}
+                <div className="flex items-start gap-4 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
+                      {q.course_name}
+                    </h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
+                      <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Faculty: {q.teacher_name}</span>
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
-                    {q.course_name}
-                  </h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
-                    <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Faculty: {q.teacher_name}</span>
-                    <span className="text-slate-300 dark:text-slate-700">•</span>
-                    <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">{q.semester}</span>
-                  </p>
+
+                {/* MIDDLE: Badge for Exam Type + Batch-Semester Tag */}
+                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  <Badge
+                    className={`px-3 py-1 text-xs font-semibold rounded-lg border ${getExamBadgeStyle(
+                      q.exam_type
+                    )}`}
+                  >
+                    {q.exam_type}
+                  </Badge>
+
+                  <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+                    <FolderKanban className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>{tag}</span>
+                  </div>
+                </div>
+
+                {/* RIGHT: View Document Button */}
+                <div className="shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800">
+                  <Button
+                    onClick={() => {
+                      setSelectedQuestion(q);
+                      setIsViewerOpen(true);
+                    }}
+                    className="
+                      w-full md:w-auto rounded-xl px-5 h-10
+                      bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm
+                      shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30
+                      hover:scale-[1.02] active:scale-[0.98]
+                      transition-all duration-200 cursor-pointer
+                    "
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Document
+                  </Button>
                 </div>
               </div>
-
-              {/* MIDDLE: Badge for Exam Type + Year */}
-              <div className="flex flex-wrap items-center gap-3 shrink-0">
-                <Badge
-                  className={`px-3 py-1 text-xs font-semibold rounded-lg border ${getExamBadgeStyle(
-                    q.exam_type
-                  )}`}
-                >
-                  {q.exam_type}
-                </Badge>
-
-                <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-500" />
-                  <span>Year: {q.year}</span>
-                </div>
-              </div>
-
-              {/* RIGHT: View Document Button */}
-              <div className="shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800">
-                <Button
-                  onClick={() => {
-                    setSelectedQuestion(q);
-                    setIsViewerOpen(true);
-                  }}
-                  className="
-                    w-full md:w-auto rounded-xl px-5 h-10
-                    bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm
-                    shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30
-                    hover:scale-[1.02] active:scale-[0.98]
-                    transition-all duration-200 cursor-pointer
-                  "
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  View Document
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
       </div>
 
       {selectedQuestion && (
         <FileViewer
           fileUrl={selectedQuestion.file_url}
           fileType={selectedQuestion.file_type}
-          title={`${selectedQuestion.course_name} (${selectedQuestion.exam_type} ${selectedQuestion.year})`}
+          title={`${selectedQuestion.course_name} (${selectedQuestion.exam_type} - ${formatBatchSemesterTag(selectedQuestion.batch_name || (Array.isArray(selectedQuestion.batches) ? selectedQuestion.batches[0]?.name : selectedQuestion.batches?.name), selectedQuestion.semester)})`}
           isOpen={isViewerOpen}
           onClose={() => setIsViewerOpen(false)}
         />

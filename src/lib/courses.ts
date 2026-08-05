@@ -98,3 +98,40 @@ export const SEMESTER_LABELS: Record<Course['semester'], string> = {
   '4.1': '4th Year 1st Semester',
   '4.2': '4th Year 2nd Semester',
 };
+
+function getOrdinalSuffix(n: number): string {
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return "th";
+  switch (n % 10) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
+  }
+}
+
+/** Formats batch name and semester into short tag format like "14th-3.1" */
+export function formatBatchSemesterTag(batchName?: string, semester?: string): string {
+  let shortBatch = "";
+  if (batchName) {
+    const match = batchName.match(/(\d+)(st|nd|rd|th)?/i);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      const suffix = match[2] ? match[2].toLowerCase() : getOrdinalSuffix(num);
+      shortBatch = `${num}${suffix}`;
+    } else {
+      shortBatch = batchName.replace(/CSE\s*/i, "").replace(/\s*Batch/i, "").trim();
+    }
+  }
+
+  const sem = semester ? semester.trim() : "";
+
+  if (shortBatch && sem) {
+    return `${shortBatch}-${sem}`;
+  } else if (shortBatch) {
+    return shortBatch;
+  } else if (sem) {
+    return sem;
+  }
+  return "General";
+}

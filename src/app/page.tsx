@@ -44,7 +44,7 @@ async function searchQuestions(searchQuery: string): Promise<QuestionRecord[]> {
   try {
     const { data: questions, error } = await supabase
       .from("questions")
-      .select("*")
+      .select("*, batches(name)")
       .ilike("course_name", `%${searchQuery}%`)
       .order("created_at", { ascending: false });
 
@@ -52,7 +52,10 @@ async function searchQuestions(searchQuery: string): Promise<QuestionRecord[]> {
       return [];
     }
 
-    return questions;
+    return questions.map((q: any) => ({
+      ...q,
+      batch_name: Array.isArray(q.batches) ? q.batches[0]?.name : q.batches?.name || "",
+    }));
   } catch (err) {
     return [];
   }
