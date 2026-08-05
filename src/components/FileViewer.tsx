@@ -22,9 +22,52 @@ interface FileViewerProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  examType?: string;
 }
 
 type WindowSize = "medium" | "full";
+
+function getCleanCourseTitle(rawTitle: string): string {
+  let clean = rawTitle;
+  // Remove subject code prefix e.g. "CSEL-1102 - " or "CSE-3101 - " or "CSER-1103: "
+  clean = clean.replace(/^[A-Z]{3,5}[-\s]?\d{4}\s*[-–:]\s*/i, "");
+  // Remove trailing exam/tag parenthesis e.g. "(Final Term 2026)" or "(Mid 1 - 14th-3.1)"
+  clean = clean.replace(/\s*\([^)]*\)\s*$/g, "");
+  return clean.trim() || rawTitle;
+}
+
+function getExamTypeLabelAndStyle(examTypeProp?: string, rawTitle: string = "") {
+  let examType = examTypeProp || "";
+  
+  if (!examType) {
+    const match = rawTitle.match(/\((Final Term|Mid \d+|Quiz|Other)[^)]*\)/i);
+    if (match) {
+      examType = match[1];
+    } else {
+      const lower = rawTitle.toLowerCase();
+      if (lower.includes("final")) examType = "Final Term";
+      else if (lower.includes("mid 1")) examType = "Mid 1";
+      else if (lower.includes("mid 2")) examType = "Mid 2";
+      else if (lower.includes("mid 3")) examType = "Mid 3";
+      else if (lower.includes("mid")) examType = "Mid Term";
+      else if (lower.includes("quiz")) examType = "Quiz";
+      else examType = "Exam Paper";
+    }
+  }
+
+  const t = examType.toLowerCase().trim();
+  let badgeColor = "bg-slate-800 text-slate-300 border-slate-700/60";
+
+  if (t === "mid 1" || t === "mid 2" || t === "mid 3" || t.startsWith("mid")) {
+    badgeColor = "bg-blue-950/80 text-blue-300 border-blue-700/60";
+  } else if (t.includes("final")) {
+    badgeColor = "bg-red-950/80 text-red-300 border-red-700/60";
+  } else if (t === "quiz") {
+    badgeColor = "bg-emerald-950/80 text-emerald-300 border-emerald-700/60";
+  }
+
+  return { label: examType, color: badgeColor };
+}
 
 export default function FileViewer({
   fileUrl,
@@ -32,9 +75,13 @@ export default function FileViewer({
   isOpen,
   onClose,
   title = "Question Document Preview",
+  examType,
 }: FileViewerProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [windowSize, setWindowSize] = useState<WindowSize>("medium");
+
+  const cleanTitle = getCleanCourseTitle(title);
+  const { label: examLabel, color: examBadgeColor } = getExamTypeLabelAndStyle(examType, title);
 
   const normalizedType = (fileType || "pdf").toLowerCase().trim();
   const isPdf = normalizedType === "pdf" || fileUrl.endsWith(".pdf");
@@ -46,25 +93,9 @@ export default function FileViewer({
     /\.(doc|docx)$/i.test(fileUrl);
 
   // Derive a clean filename from the title + type
-  const safeTitle = title.replace(/[^a-zA-Z0-9_\- ]/g, "").replace(/\s+/g, "_");
+  const safeTitle = cleanTitle.replace(/[^a-zA-Z0-9_\- ]/g, "").replace(/\s+/g, "_");
   const ext = isPdf ? "pdf" : isImage ? normalizedType : isDoc ? "docx" : normalizedType;
   const downloadFilename = `${safeTitle}.${ext}`;
-
-  const badgeLabel = isPdf
-    ? "PDF"
-    : isImage
-    ? normalizedType.toUpperCase()
-    : isDoc
-    ? "DOCX"
-    : normalizedType.toUpperCase();
-
-  const badgeColor = isPdf
-    ? "bg-red-500/10 text-red-400 border-red-500/25"
-    : isImage
-    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
-    : isDoc
-    ? "bg-blue-500/10 text-blue-400 border-blue-500/25"
-    : "bg-indigo-500/10 text-indigo-400 border-indigo-500/25";
 
   const HeaderIcon = isPdf
     ? FileText
@@ -111,14 +142,14 @@ export default function FileViewer({
 
         {/* ── Header Bar ─────────────────────────────────────────────────────── */}
         <div className="shrink-0 flex items-center justify-between pl-3 sm:pl-5 pr-4 sm:pr-6 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-900/95 gap-2 sm:gap-4">
-          {/* Left: Icon + Title */}
+          {/* Left: Icon + Clean Title */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-1 sm:pr-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 shrink-0">
               <HeaderIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm font-bold text-slate-100 truncate leading-tight">
-                {title}
+                {cleanTitle}
               </p>
               <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 hidden sm:block">
                 Department Question Bank Archive
@@ -126,13 +157,13 @@ export default function FileViewer({
             </div>
           </div>
 
-          {/* Right: Clean flex row with Format Badge + Resize + Download + ExternalLink + Close X */}
+          {/* Right: Clean flex row with Exam Type Badge + Resize + Download + ExternalLink + Close X */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Item 1: Format Badge */}
+            {/* Item 1: Exam Type Badge (Replaces File Type Badge) */}
             <span
-              className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badgeColor}`}
+              className={`shrink-0 inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold border ${examBadgeColor}`}
             >
-              {badgeLabel}
+              {examLabel}
             </span>
 
             {/* Item 2: Window Size Switcher (Standard vs Full Screen) */}

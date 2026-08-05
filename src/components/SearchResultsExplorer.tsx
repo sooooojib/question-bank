@@ -126,7 +126,8 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
         <FileViewer
           fileUrl={selectedQuestion.file_url}
           fileType={selectedQuestion.file_type}
-          title={`${selectedQuestion.course_name} (${selectedQuestion.exam_type} - ${formatBatchSemesterTag(selectedQuestion.batch_name || (Array.isArray(selectedQuestion.batches) ? selectedQuestion.batches[0]?.name : selectedQuestion.batches?.name), selectedQuestion.semester)})`}
+          title={selectedQuestion.course_name}
+          examType={selectedQuestion.exam_type}
           isOpen={isViewerOpen}
           onClose={() => setIsViewerOpen(false)}
         />

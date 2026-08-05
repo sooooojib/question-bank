@@ -264,7 +264,8 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
         <FileViewer
           fileUrl={selectedQuestion.file_url}
           fileType={selectedQuestion.file_type}
-          title={`${selectedQuestion.course_name} (${selectedQuestion.exam_type} ${selectedQuestion.year})`}
+          title={selectedQuestion.course_name}
+          examType={selectedQuestion.exam_type}
           isOpen={isViewerOpen}
           onClose={() => setIsViewerOpen(false)}
         />
