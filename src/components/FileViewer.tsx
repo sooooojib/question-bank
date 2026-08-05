@@ -207,25 +207,43 @@ export default function FileViewer({
           </div>
         </div>
 
-        {/* ── Preview Body (fills all remaining space) ────────────────────────── */}
-        <div className="flex-1 w-full h-full overflow-hidden flex items-center justify-center bg-slate-950">
-
+        {/* ── Preview Body (fills all remaining space with touch scroll & pinch-zoom) ────────────────────────── */}
+        <div
+          className="flex-1 w-full h-full min-h-[70vh] max-h-[85vh] overflow-auto touch-pan-x touch-pan-y bg-slate-950 relative"
+          style={{
+            touchAction: "pan-x pan-y pinch-zoom",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
           {/* PDF: full-area iframe */}
           {isPdf && (
             <iframe
               src={fileUrl}
-              className="w-full h-full border-0 rounded-b-2xl"
+              className="w-full h-full min-h-full border-0 rounded-b-2xl"
               title="PDF Question Paper Viewer"
+              style={{
+                touchAction: "pan-x pan-y pinch-zoom",
+                WebkitOverflowScrolling: "touch",
+              }}
             />
           )}
 
-          {/* Image: object-contain, centered */}
+          {/* Image: touch-scrollable & pinch-zoomable */}
           {isImage && (
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div
+              className="w-full h-full min-h-full overflow-auto flex items-center justify-center p-2 sm:p-4"
+              style={{
+                touchAction: "pan-x pan-y pinch-zoom",
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
               <img
                 src={fileUrl}
                 alt={title}
-                className="max-w-full max-h-full object-contain mx-auto rounded-xl shadow-xl"
+                className="max-w-full max-h-full object-contain mx-auto rounded-xl shadow-xl transition-transform duration-200"
+                style={{
+                  touchAction: "pan-x pan-y pinch-zoom",
+                }}
               />
             </div>
           )}
