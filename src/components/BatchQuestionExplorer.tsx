@@ -116,31 +116,40 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
           {/* Mobile Touch-Scrollable Container */}
           <div className="w-full overflow-x-auto scrollbar-none py-1 flex-1">
             <TabsList className="bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 inline-flex flex-nowrap shrink-0 gap-1.5 min-w-full sm:min-w-0 h-auto">
-              {semesters.map((sem) => (
-                <TabsTrigger
-                  key={sem}
-                  value={sem}
-                  className="
-                    px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200
-                    data-[state=active]:bg-slate-800
-                    data-[state=active]:text-indigo-400
-                    data-[state=active]:shadow-md
-                    text-slate-400 hover:text-slate-200
-                    cursor-pointer whitespace-nowrap shrink-0
-                  "
-                >
-                  <BookOpen className="w-4 h-4 mr-2 inline shrink-0" />
-                  {sem}
-                  <Badge
-                    variant="secondary"
-                    className="ml-2 bg-slate-700/60 text-slate-300 rounded-md text-[11px] px-1.5 py-0 shrink-0"
+              {semesters.map((sem) => {
+                const isActive = activeTab === sem;
+                const isFiltered = selectedExamType !== "All";
+                const showBadge = isFiltered && isActive;
+                const filteredCount = showBadge
+                  ? semesterMap[sem].filter((q) => q.exam_type === selectedExamType).length
+                  : 0;
+
+                return (
+                  <TabsTrigger
+                    key={sem}
+                    value={sem}
+                    className="
+                      px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200
+                      data-[state=active]:bg-slate-800
+                      data-[state=active]:text-indigo-400
+                      data-[state=active]:shadow-md
+                      text-slate-400 hover:text-slate-200
+                      cursor-pointer whitespace-nowrap shrink-0
+                    "
                   >
-                    {selectedExamType === "All" || activeTab !== sem
-                      ? semesterMap[sem].length
-                      : semesterMap[sem].filter((q) => q.exam_type === selectedExamType).length}
-                  </Badge>
-                </TabsTrigger>
-              ))}
+                    <BookOpen className="w-4 h-4 mr-2 inline shrink-0" />
+                    {sem}
+                    {showBadge && (
+                      <Badge
+                        variant="secondary"
+                        className="ml-2 bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 rounded-md text-[11px] px-1.5 py-0 shrink-0"
+                      >
+                        {filteredCount}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </div>
 
@@ -172,7 +181,7 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
         {/* ── Tab Content per Semester ── */}
         {semesters.map((sem) => {
           const filtered =
-            selectedExamType === "All" || activeTab !== sem
+            selectedExamType === "All"
               ? semesterMap[sem]
               : semesterMap[sem].filter((q) => q.exam_type === selectedExamType);
 
@@ -181,7 +190,7 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
               {filtered.length === 0 ? (
                 <div className="text-center py-12 bg-slate-900/50 rounded-2xl border border-slate-800">
                   <Filter className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                  <p className="text-slate-400 text-sm font-medium">No papers match this filter.</p>
+                  <p className="text-slate-400 text-sm font-medium">No papers match this filter in {sem}.</p>
                   <p className="text-slate-600 text-xs mt-1">Try selecting "All Types" to see everything.</p>
                 </div>
               ) : (
