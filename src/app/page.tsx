@@ -137,19 +137,6 @@ export default async function HomePage({ searchParams }: PageProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 sm:gap-3 bg-slate-900/80 border border-slate-800 rounded-xl sm:rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-sm backdrop-blur-md">
-              <div className="w-8 h-8 rounded-xl bg-cyan-950/80 text-cyan-400 flex items-center justify-center border border-cyan-900/60">
-                <Layers className="w-4 h-4" />
-              </div>
-              <div className="text-left">
-                <div className="font-heading text-lg font-bold text-slate-100 leading-tight">
-                  8
-                </div>
-                <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-                  Semesters
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
