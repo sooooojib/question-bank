@@ -11,6 +11,9 @@ import {
   AlertCircle,
   Image as ImageIcon,
   Loader2,
+  Maximize2,
+  Minimize2,
+  X,
 } from "lucide-react";
 
 interface FileViewerProps {
@@ -21,6 +24,8 @@ interface FileViewerProps {
   title?: string;
 }
 
+type WindowSize = "medium" | "full";
+
 export default function FileViewer({
   fileUrl,
   fileType,
@@ -29,6 +34,7 @@ export default function FileViewer({
   title = "Question Document Preview",
 }: FileViewerProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [windowSize, setWindowSize] = useState<WindowSize>("medium");
 
   const normalizedType = (fileType || "pdf").toLowerCase().trim();
   const isPdf = normalizedType === "pdf" || fileUrl.endsWith(".pdf");
@@ -68,6 +74,11 @@ export default function FileViewer({
     ? FileSpreadsheet
     : AlertCircle;
 
+  const sizeClasses: Record<WindowSize, string> = {
+    medium: "sm:max-w-4xl max-w-4xl w-[92vw] sm:w-[85vw] h-[82vh] !max-h-[82vh]",
+    full: "!max-w-[98vw] w-[98vw] h-[96vh] !max-h-[96vh]",
+  };
+
   // ── Direct blob download (prevents opening in new tab) ──────────────────────
   async function handleDownload() {
     if (isDownloading) return;
@@ -95,13 +106,13 @@ export default function FileViewer({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      {/* ── Floating Modal Dialog ── */}
-      <DialogContent className="sm:max-w-4xl max-w-4xl w-[94vw] sm:w-[90vw] h-[90vh] sm:h-[85vh] max-h-[90vh] bg-slate-900 border border-slate-800 p-0 flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl z-[100]">
+      {/* ── Floating Modal Dialog (hides default absolute close button) ── */}
+      <DialogContent className={`${sizeClasses[windowSize]} [&>button]:hidden bg-slate-900 border border-slate-800 p-0 flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl z-[100] transition-all duration-300 ease-out`}>
 
         {/* ── Header Bar ─────────────────────────────────────────────────────── */}
-        <div className="shrink-0 flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-900/95 gap-2">
-          {/* Left: Icon + Title + Badge */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-1 sm:pr-4">
+        <div className="shrink-0 flex items-center justify-between pl-3 sm:pl-5 pr-4 sm:pr-6 py-2.5 sm:py-3 border-b border-slate-800 bg-slate-900/95 gap-2 sm:gap-4">
+          {/* Left: Icon + Title */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 pr-1 sm:pr-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 shrink-0">
               <HeaderIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
@@ -113,20 +124,51 @@ export default function FileViewer({
                 Department Question Bank Archive
               </p>
             </div>
+          </div>
+
+          {/* Right: Clean flex row with Format Badge + Resize + Download + ExternalLink + Close X */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Item 1: Format Badge */}
             <span
-              className={`shrink-0 hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold border ${badgeColor}`}
+              className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badgeColor}`}
             >
               {badgeLabel}
             </span>
-          </div>
 
-          {/* Right: Download + Open in Tab */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Item 2: Window Size Switcher (Standard vs Full Screen) */}
+            <div className="hidden sm:flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+              <button
+                type="button"
+                onClick={() => setWindowSize("medium")}
+                title="Standard Size"
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  windowSize === "medium"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+                }`}
+              >
+                <Minimize2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setWindowSize("full")}
+                title="Full Screen"
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                  windowSize === "full"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+                }`}
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Item 3: Download Button */}
             <Button
               size="sm"
               onClick={handleDownload}
               disabled={isDownloading}
-              className="h-8 sm:h-9 px-2.5 sm:px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all"
+              className="h-9 px-3 sm:px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-70 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
             >
               {isDownloading ? (
                 <>
@@ -140,15 +182,28 @@ export default function FileViewer({
                 </>
               )}
             </Button>
-            <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+
+            {/* Item 4: External Link Button */}
+            <a href={fileUrl} target="_blank" rel="noopener noreferrer" title="Open in New Tab">
               <Button
                 size="sm"
                 variant="outline"
-                className="h-9 px-3 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-100 text-xs transition-all"
+                className="h-9 w-9 p-0 rounded-xl border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-100 text-xs transition-all flex items-center justify-center cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </Button>
             </a>
+
+            {/* Item 5: Dedicated Close Button */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onClose}
+              title="Close Modal"
+              className="h-9 w-9 p-0 rounded-xl border-slate-700 bg-slate-800/60 text-slate-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/40 transition-all flex items-center justify-center cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
