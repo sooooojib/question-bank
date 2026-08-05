@@ -109,8 +109,8 @@ export default async function HomePage({ searchParams }: PageProps) {
 
           {/* Stat Pills */}
           <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
-            <div className="flex items-center gap-2.5 sm:gap-3 bg-slate-900/80 border border-slate-800 rounded-xl sm:rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-sm backdrop-blur-md">
-              <div className="w-8 h-8 rounded-xl bg-indigo-950/80 text-indigo-400 flex items-center justify-center border border-indigo-900/60">
+            <div className="w-[160px] sm:w-[180px] flex items-center gap-2.5 sm:gap-3 bg-slate-900/80 border border-slate-800 rounded-xl sm:rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-sm backdrop-blur-md">
+              <div className="w-8 h-8 rounded-xl bg-indigo-950/80 text-indigo-400 flex items-center justify-center border border-indigo-900/60 shrink-0">
                 <FolderKanban className="w-4 h-4" />
               </div>
               <div className="text-left">
@@ -123,8 +123,8 @@ export default async function HomePage({ searchParams }: PageProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 sm:gap-3 bg-slate-900/80 border border-slate-800 rounded-xl sm:rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-sm backdrop-blur-md">
-              <div className="w-8 h-8 rounded-xl bg-blue-950/80 text-blue-400 flex items-center justify-center border border-blue-900/60">
+            <div className="w-[160px] sm:w-[180px] flex items-center gap-2.5 sm:gap-3 bg-slate-900/80 border border-slate-800 rounded-xl sm:rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 shadow-sm backdrop-blur-md">
+              <div className="w-8 h-8 rounded-xl bg-blue-950/80 text-blue-400 flex items-center justify-center border border-blue-900/60 shrink-0">
                 <FileText className="w-4 h-4" />
               </div>
               <div className="text-left">
@@ -132,7 +132,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                   {totalQuestions}
                 </div>
                 <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-                  Indexed Papers
+                  Questions
                 </div>
               </div>
             </div>
