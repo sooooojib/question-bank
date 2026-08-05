@@ -26,6 +26,8 @@ import {
 import type { QuestionRecord } from "@/app/batch/[id]/page";
 import { formatBatchSemesterTag } from "@/lib/courses";
 
+const SEMESTER_ORDER = ["1.1", "1.2", "2.1", "2.2", "3.1", "3.2", "4.1", "4.2"];
+
 const EXAM_FILTER_OPTIONS = [
   { value: "All", label: "All Types" },
   { value: "Mid 1", label: "Mid 1" },
@@ -50,7 +52,16 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
     semesterMap[sem].push(q);
   });
 
-  const semesters = Object.keys(semesterMap);
+  // Strict chronological sorting according to SEMESTER_ORDER
+  const semesters = Object.keys(semesterMap).sort((a, b) => {
+    const indexA = SEMESTER_ORDER.indexOf(a);
+    const indexB = SEMESTER_ORDER.indexOf(b);
+    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    return a.localeCompare(b);
+  });
+
   const defaultTab = semesters[0] || "";
 
   // Modal state for previewing documents
@@ -75,7 +86,7 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
       return "bg-blue-950/80 text-blue-300 border-blue-700/60";
     }
     if (t.includes("final")) {
-      return "bg-red-950/80 text-red-300 border-red-700/60";
+      return "bg-red-950/80 text-red-700 dark:text-red-300 border-red-700/60";
     }
     if (t === "quiz") {
       return "bg-emerald-950/80 text-emerald-300 border-emerald-700/60";
@@ -102,26 +113,27 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
       <Tabs defaultValue={defaultTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Tab Row + Exam Type Filter */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 pb-2">
-          <div className="overflow-x-auto scrollbar-none flex-1">
-            <TabsList className="bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 inline-flex gap-1.5 h-auto">
+          {/* Mobile Touch-Scrollable Container */}
+          <div className="w-full overflow-x-auto scrollbar-none py-1 flex-1">
+            <TabsList className="bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 inline-flex flex-nowrap shrink-0 gap-1.5 min-w-full sm:min-w-0 h-auto">
               {semesters.map((sem) => (
                 <TabsTrigger
                   key={sem}
                   value={sem}
                   className="
-                    px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200
+                    px-4 sm:px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200
                     data-[state=active]:bg-slate-800
                     data-[state=active]:text-indigo-400
                     data-[state=active]:shadow-md
                     text-slate-400 hover:text-slate-200
-                    cursor-pointer whitespace-nowrap
+                    cursor-pointer whitespace-nowrap shrink-0
                   "
                 >
-                  <BookOpen className="w-4 h-4 mr-2 inline" />
+                  <BookOpen className="w-4 h-4 mr-2 inline shrink-0" />
                   {sem}
                   <Badge
                     variant="secondary"
-                    className="ml-2 bg-slate-700/60 text-slate-300 rounded-md text-[11px] px-1.5 py-0"
+                    className="ml-2 bg-slate-700/60 text-slate-300 rounded-md text-[11px] px-1.5 py-0 shrink-0"
                   >
                     {selectedExamType === "All" || activeTab !== sem
                       ? semesterMap[sem].length
