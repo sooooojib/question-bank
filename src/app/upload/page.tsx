@@ -46,7 +46,6 @@ import {
   FileText,
   Check,
   ChevronsUpDown,
-  Sparkles,
   X,
 } from "lucide-react";
 
@@ -241,28 +240,6 @@ export default function UploadQuestionPage() {
     setSelectedSemester(val as SemesterCode);
     setSelectedCourse(""); // Reset course when semester changes
   };
-
-  // Teachers who previously taught this selected course
-  const courseRecommendedTeachers = selectedCourse
-    ? Array.from(
-        new Set(
-          teacherRecords
-            .filter((r) => {
-              if (!r.teacher_name) return false;
-              const cleanCourse = (r.course_name || "").toLowerCase();
-              const selCourse = selectedCourse.toLowerCase();
-              return (
-                cleanCourse === selCourse ||
-                cleanCourse.includes(selCourse) ||
-                (selectedCourse.includes("-") &&
-                  cleanCourse.includes(selectedCourse.split("-")[0].trim().toLowerCase()))
-              );
-            })
-            .map((r) => getFacultyFullName(r.teacher_name.trim()))
-            .filter(Boolean)
-        )
-      )
-    : [];
 
   const teacherQuery = teacherName.trim().toLowerCase();
   const filteredTeachers = teacherQuery
@@ -557,36 +534,6 @@ export default function UploadQuestionPage() {
                       divide-y divide-slate-800
                     "
                   >
-                    {/* Course-specific recommendations if available */}
-                    {courseRecommendedTeachers.length > 0 && (
-                      <div className="p-2 bg-indigo-950/40">
-                        <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-indigo-300 px-2 py-1">
-                          <Sparkles className="w-3 h-3 text-indigo-400" />
-                          Previously for this Course
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 p-1">
-                          {courseRecommendedTeachers.map((name) => (
-                            <button
-                              key={`rec-${name}`}
-                              type="button"
-                              onClick={() => {
-                                setTeacherName(name);
-                                setIsTeacherDropdownOpen(false);
-                              }}
-                              className={`
-                                text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer
-                                ${teacherName.toLowerCase() === name.toLowerCase()
-                                  ? "bg-indigo-600 text-white shadow-sm"
-                                  : "bg-indigo-900/50 hover:bg-indigo-800/80 text-indigo-200 border border-indigo-700/50"
-                                }
-                              `}
-                            >
-                              {name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
 
                     {/* All Existing Teachers */}
                     <div className="p-1">
