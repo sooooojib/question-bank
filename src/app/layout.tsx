@@ -41,10 +41,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "
       >
         <NextTopLoader
-          color="#ef4444"
+          color="#6366f1"
           initialPosition={0.08}
           crawlSpeed={200}
-          height={3}
+          height={2.5}
           crawl={true}
           showSpinner={false}
           easing="ease"

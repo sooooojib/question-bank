@@ -33,11 +33,16 @@ CREATE TABLE IF NOT EXISTS questions (
 -- =============================================
 -- 3. INDEXES for fast lookups
 -- =============================================
+CREATE INDEX IF NOT EXISTS idx_batches_created_at      ON batches(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_questions_batch_id     ON questions(batch_id);
+CREATE INDEX IF NOT EXISTS idx_questions_created_at    ON questions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_questions_batch_created ON questions(batch_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_questions_course_name  ON questions(course_name);
+CREATE INDEX IF NOT EXISTS idx_questions_course_lower  ON questions(LOWER(course_name));
 CREATE INDEX IF NOT EXISTS idx_questions_semester     ON questions(semester);
 CREATE INDEX IF NOT EXISTS idx_questions_exam_type    ON questions(exam_type);
 CREATE INDEX IF NOT EXISTS idx_questions_year         ON questions(year);
+
 
 -- =============================================
 -- 4. ROW LEVEL SECURITY (RLS) — TABLES

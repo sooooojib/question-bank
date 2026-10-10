@@ -143,7 +143,8 @@ export default function UploadQuestionPage() {
       const { data, error } = await supabase
         .from("questions")
         .select("teacher_name, course_name")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100);
 
       if (!error && data) {
         setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
@@ -169,7 +170,9 @@ export default function UploadQuestionPage() {
         const { data, error } = await supabase
           .from("questions")
           .select("teacher_name, course_name")
-          .order("created_at", { ascending: false });
+          .order("created_at", { ascending: false })
+          .limit(100);
+
 
         if (!ignore && !error && data) {
           setTeacherRecords(data as { teacher_name: string; course_name: string }[]);

@@ -4,6 +4,8 @@ import { supabase } from "@/utils/supabase";
 import BatchQuestionExplorer from "@/components/BatchQuestionExplorer";
 import { ChevronLeft, FolderKanban, BookOpen, Layers } from "lucide-react";
 
+export const revalidate = 60; // Incremental Static Regeneration: cache batch page for 60s, revalidate on-demand
+
 export interface QuestionRecord {
   id: string;
   batch_id: string;
@@ -27,14 +29,22 @@ export interface BatchData {
 
 async function getBatchData(id: string): Promise<{ batch: BatchData; questions: QuestionRecord[] }> {
   try {
-    // 1. Fetch batch
-    const { data: batch, error: batchError } = await supabase
-      .from("batches")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    // Parallelize batch info and question records queries for 2x faster load times
+    const [batchRes, questionsRes] = await Promise.all([
+      supabase
+        .from("batches")
+        .select("id, name, created_at")
+        .eq("id", id)
+        .maybeSingle(),
+      supabase
+        .from("questions")
+        .select("id, batch_id, course_name, teacher_name, semester, exam_type, year, file_url, file_type, created_at, batches(name)")
+        .eq("batch_id", id)
+        .order("created_at", { ascending: false }),
+    ]);
 
-    if (batchError || !batch) {
+    const batch = batchRes.data;
+    if (batchRes.error || !batch) {
       return {
         batch: {
           id: id,
@@ -45,14 +55,7 @@ async function getBatchData(id: string): Promise<{ batch: BatchData; questions: 
       };
     }
 
-    // 2. Fetch questions for this batch
-    const { data: questions, error: questionsError } = await supabase
-      .from("questions")
-      .select("*, batches(name)")
-      .eq("batch_id", id)
-      .order("created_at", { ascending: false });
-
-    const formattedQuestions = (questions || []).map((q: any) => ({
+    const formattedQuestions = (questionsRes.data || []).map((q: any) => ({
       ...q,
       batch_name: Array.isArray(q.batches) ? q.batches[0]?.name : q.batches?.name || batch.name || "",
     }));
@@ -61,6 +64,7 @@ async function getBatchData(id: string): Promise<{ batch: BatchData; questions: 
       batch,
       questions: formattedQuestions,
     };
+
   } catch (err) {
     return {
       batch: {

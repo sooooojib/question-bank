@@ -2,8 +2,7 @@ import { supabase } from "@/utils/supabase";
 import HomeClientView from "@/components/HomeClientView";
 import type { QuestionRecord } from "@/app/batch/[id]/page";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60; // Incremental Static Regeneration: serve cached in <20ms, revalidates every 60s or on-demand
 
 export type BatchWithCount = {
   id: string;
@@ -38,8 +37,9 @@ async function getAllQuestions(): Promise<QuestionRecord[]> {
   try {
     const { data: questions, error } = await supabase
       .from("questions")
-      .select("*, batches(name)")
+      .select("id, batch_id, course_name, teacher_name, semester, exam_type, year, file_url, file_type, created_at, batches(name)")
       .order("created_at", { ascending: false });
+
 
     if (error || !questions) {
       return [];

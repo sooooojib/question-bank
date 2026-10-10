@@ -233,6 +233,7 @@ export async function uploadQuestion(formData: FormData): Promise<UploadResult> 
 
     revalidatePath("/");
     revalidatePath("/upload");
+    revalidatePath(`/batch/${batchId}`);
 
     return {
       success: true,
