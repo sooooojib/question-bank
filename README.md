@@ -14,7 +14,7 @@ A web application designed for university students and department archives to or
 - **Real-Time Search**: Search papers instantly by course name or course code right from the homepage.
 - **Inline Document Previewer**: Interactive modal viewer for PDF papers and images directly inside the browser.
 - **Direct Blob Download**: Download PDF and image files directly to your device without opening unwanted external browser tabs.
-- **Upload Validation & Storage Protection**: Enforces a 1MB file size limit with built-in compression warnings and direct integration with PDF compression tools.
+- **Upload Validation & Storage Protection**: Enforces a 5MB file size limit with built-in compression warnings and direct integration with PDF compression tools.
 - **Responsive Dark Theme**: Fully optimized for mobile screens, tablets, and desktop devices.
 - **Page Loading Indicator**: Smooth red top progress bar during page navigation powered by `nextjs-toploader`.
 
@@ -37,7 +37,7 @@ Access the live university question bank archive here:
 6. Enter the **Teacher / Faculty Name** (or faculty code, e.g., `UKA`) and the **Exam Year**.
 7. Choose the **Exam Type** (`Mid 1`, `Mid 2`, `Mid 3`, `Final Term`, `Quiz`, or `Other`).
 8. Select the question file (PDF, PNG, JPG, or DOCX). 
-   - *Note: Files must be under 1MB. If your file exceeds 1MB, a warning dialog will prompt you to compress the PDF.*
+   - *Note: Files must be under 5MB. If your file exceeds 5MB, a warning dialog will prompt you to compress the PDF.*
 9. Click **Upload Question Paper**. Upon success, the paper will immediately appear under the batch archive.
 
 ---

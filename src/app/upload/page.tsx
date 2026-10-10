@@ -98,11 +98,11 @@ export default function UploadQuestionPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [showSizeModal, setShowSizeModal] = useState(false);
 
-  // ── File size validation (1MB max) ────────────────────────────────────────
+  // ── File size validation (5MB max) ────────────────────────────────────────
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 1 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       // Reject: reset input and open warning modal
       e.target.value = "";
       setSelectedFileName("");
@@ -740,7 +740,7 @@ export default function UploadQuestionPage() {
                         Drag & drop here, or{" "}
                         <span className="text-indigo-400 font-semibold underline underline-offset-2">browse</span>
                       </p>
-                      <p className="text-xs text-slate-500">Supports PDF, PNG, JPG, or DOC (Max File Size: 1MB)</p>
+                      <p className="text-xs text-slate-500">Supports PDF, PNG, JPG, or DOC (Max File Size: 5MB)</p>
                     </>
                   )}
                 </div>
@@ -783,10 +783,10 @@ export default function UploadQuestionPage() {
         <DialogContent className="bg-slate-900 border border-slate-700 text-slate-100 rounded-2xl max-w-md w-[92vw] shadow-2xl p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="text-2xl">⚠️</span> File Too Large (Limit: 1MB)
+              <span className="text-2xl">⚠️</span> File Too Large (Limit: 5MB)
             </DialogTitle>
             <DialogDescription className="text-slate-400 text-sm mt-2 leading-relaxed">
-              Your file size is over <span className="text-white font-semibold">1MB</span>. To ensure fast downloads and save server storage, please compress your PDF before uploading.
+              Your file size is over <span className="text-white font-semibold">5MB</span>. To ensure fast downloads and save server storage, please compress your PDF before uploading.
             </DialogDescription>
           </DialogHeader>
 

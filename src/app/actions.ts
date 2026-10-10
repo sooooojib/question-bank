@@ -126,6 +126,15 @@ export async function uploadQuestion(formData: FormData): Promise<UploadResult> 
       };
     }
 
+    // Validate file size (5MB max)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return {
+        success: false,
+        error: "File size exceeds the 5MB limit. Please compress the file before uploading.",
+      };
+    }
+
     // Validate file extension
     const fileExt = file.name.split(".").pop()?.toLowerCase() || "pdf";
     const allowedTypes = ["pdf", "jpg", "jpeg", "png", "doc", "docx"];
