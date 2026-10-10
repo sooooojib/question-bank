@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -39,6 +39,10 @@ import {
   Calendar,
   Layers,
   FileText,
+  Check,
+  ChevronsUpDown,
+  Sparkles,
+  X,
 } from "lucide-react";
 
 // ─── Types & constants ────────────────────────────────────────────────────────
@@ -80,6 +84,14 @@ export default function UploadQuestionPage() {
   const [selectedSemester, setSelectedSemester] = useState<SemesterCode | "">("");
   const [selectedCourse, setSelectedCourse] = useState<string>("");
 
+  // State: Teacher / Faculty
+  const [teacherName, setTeacherName] = useState<string>("");
+  const [existingTeachers, setExistingTeachers] = useState<string[]>([]);
+  const [teacherRecords, setTeacherRecords] = useState<{ teacher_name: string; course_name: string }[]>([]);
+  const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
+  const [isLoadingTeachers, setIsLoadingTeachers] = useState(false);
+  const teacherDropdownRef = useRef<HTMLDivElement>(null);
+
   // State: Other Fields
   const [examType, setExamType] = useState<string>("");
   const [selectedFileName, setSelectedFileName] = useState<string>("");
@@ -119,6 +131,92 @@ export default function UploadQuestionPage() {
     fetchBatches();
   }, []);
 
+  // ── Fetch existing teachers from Supabase ─────────────────────────────────
+  const refreshTeachers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("teacher_name, course_name")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
+        const freqMap = new Map<string, number>();
+        data.forEach((row) => {
+          const name = row.teacher_name?.trim();
+          if (name) {
+            freqMap.set(name, (freqMap.get(name) || 0) + 1);
+          }
+        });
+
+        const unique = Array.from(freqMap.keys()).sort((a, b) => {
+          const diff = (freqMap.get(b) || 0) - (freqMap.get(a) || 0);
+          if (diff !== 0) return diff;
+          return a.localeCompare(b);
+        });
+        setExistingTeachers(unique);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    let ignore = false;
+    async function loadTeachers() {
+      try {
+        setIsLoadingTeachers(true);
+        const { data, error } = await supabase
+          .from("questions")
+          .select("teacher_name, course_name")
+          .order("created_at", { ascending: false });
+
+        if (!ignore && !error && data) {
+          setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
+          const freqMap = new Map<string, number>();
+          data.forEach((row) => {
+            const name = row.teacher_name?.trim();
+            if (name) {
+              freqMap.set(name, (freqMap.get(name) || 0) + 1);
+            }
+          });
+
+          const unique = Array.from(freqMap.keys()).sort((a, b) => {
+            const diff = (freqMap.get(b) || 0) - (freqMap.get(a) || 0);
+            if (diff !== 0) return diff;
+            return a.localeCompare(b);
+          });
+          setExistingTeachers(unique);
+        }
+      } catch {
+        if (!ignore) setExistingTeachers([]);
+      } finally {
+        if (!ignore) setIsLoadingTeachers(false);
+      }
+    }
+
+    loadTeachers();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  // ── Close teacher dropdown on outside click ───────────────────────────────
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        teacherDropdownRef.current &&
+        !teacherDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsTeacherDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // ── Derived Values ────────────────────────────────────────────────────────
   const filteredCourses: Course[] = selectedSemester
     ? COURSE_LIST.filter((c) => c.semester === selectedSemester)
@@ -128,6 +226,37 @@ export default function UploadQuestionPage() {
     setSelectedSemester(val as SemesterCode);
     setSelectedCourse(""); // Reset course when semester changes
   };
+
+  // Teachers who previously taught this selected course
+  const courseRecommendedTeachers = selectedCourse
+    ? Array.from(
+        new Set(
+          teacherRecords
+            .filter((r) => {
+              if (!r.teacher_name) return false;
+              const cleanCourse = (r.course_name || "").toLowerCase();
+              const selCourse = selectedCourse.toLowerCase();
+              return (
+                cleanCourse === selCourse ||
+                cleanCourse.includes(selCourse) ||
+                (selectedCourse.includes("-") &&
+                  cleanCourse.includes(selectedCourse.split("-")[0].trim().toLowerCase()))
+              );
+            })
+            .map((r) => r.teacher_name.trim())
+            .filter(Boolean)
+        )
+      )
+    : [];
+
+  const teacherQuery = teacherName.trim().toLowerCase();
+  const filteredTeachers = teacherQuery
+    ? existingTeachers.filter((t) => t.toLowerCase().includes(teacherQuery))
+    : existingTeachers;
+
+  const exactMatchExists = existingTeachers.some(
+    (t) => t.toLowerCase() === teacherQuery
+  );
 
   // ── Form Submit ───────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -145,6 +274,10 @@ export default function UploadQuestionPage() {
       toast.error("Please select a course.");
       return;
     }
+    if (!teacherName.trim()) {
+      toast.error("Please enter or select a teacher/faculty name.");
+      return;
+    }
     if (!examType) {
       toast.error("Please select an exam type.");
       return;
@@ -155,6 +288,7 @@ export default function UploadQuestionPage() {
     formData.set("batch_name", selectedBatch);
     formData.set("semester", selectedSemester);
     formData.set("course_name", selectedCourse);
+    formData.set("teacher_name", teacherName.trim());
     formData.set("exam_type", examType);
 
     setIsUploading(true);
@@ -166,8 +300,10 @@ export default function UploadQuestionPage() {
         setSelectedBatch("");
         setSelectedSemester("");
         setSelectedCourse("");
+        setTeacherName("");
         setExamType("");
         setSelectedFileName("");
+        refreshTeachers();
         setTimeout(() => router.push("/"), 1200);
       } else {
         toast.error(result.error ?? "Upload failed. Please try again.");
@@ -326,18 +462,201 @@ export default function UploadQuestionPage() {
             {/* ── 4. TEACHER / FACULTY NAME & EXAM YEAR (2-Column Row) ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Teacher Name */}
-              <div>
-                <Label className={labelCls}>
-                  <User className="w-3.5 h-3.5 text-emerald-400" />
-                  Teacher / Faculty Name
-                </Label>
-                <Input
-                  type="text"
-                  name="teacher_name"
-                  required
-                  placeholder="e.g. UKA"
-                  className={inputCls}
-                />
+              <div className="relative" ref={teacherDropdownRef}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    <User className="w-3.5 h-3.5 text-emerald-400" />
+                    Teacher / Faculty Name
+                  </Label>
+                  {existingTeachers.length > 0 && (
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {existingTeachers.length} saved
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <Input
+                    type="text"
+                    name="teacher_name"
+                    required
+                    value={teacherName}
+                    onChange={(e) => {
+                      setTeacherName(e.target.value);
+                      setIsTeacherDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsTeacherDropdownOpen(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        setIsTeacherDropdownOpen(false);
+                      }
+                    }}
+                    placeholder="e.g. UKA (type or select existing)"
+                    autoComplete="off"
+                    className={`${inputCls} pr-16`}
+                  />
+
+                  {/* Right side helper buttons */}
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    {teacherName && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTeacherName("");
+                          setIsTeacherDropdownOpen(true);
+                        }}
+                        className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                        title="Clear input"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setIsTeacherDropdownOpen((prev) => !prev)}
+                      className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                      title="Toggle faculty list"
+                    >
+                      <ChevronsUpDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dropdown Menu */}
+                {isTeacherDropdownOpen && (
+                  <div
+                    className="
+                      absolute left-0 right-0 z-50 mt-1.5
+                      bg-slate-900 border border-slate-700/80 rounded-xl
+                      shadow-2xl overflow-hidden
+                      max-h-60 overflow-y-auto
+                      divide-y divide-slate-800
+                    "
+                  >
+                    {/* Course-specific recommendations if available */}
+                    {courseRecommendedTeachers.length > 0 && (
+                      <div className="p-2 bg-indigo-950/40">
+                        <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-indigo-300 px-2 py-1">
+                          <Sparkles className="w-3 h-3 text-indigo-400" />
+                          Previously for this Course
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 p-1">
+                          {courseRecommendedTeachers.map((name) => (
+                            <button
+                              key={`rec-${name}`}
+                              type="button"
+                              onClick={() => {
+                                setTeacherName(name);
+                                setIsTeacherDropdownOpen(false);
+                              }}
+                              className={`
+                                text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer
+                                ${teacherName.toLowerCase() === name.toLowerCase()
+                                  ? "bg-indigo-600 text-white shadow-sm"
+                                  : "bg-indigo-900/50 hover:bg-indigo-800/80 text-indigo-200 border border-indigo-700/50"
+                                }
+                              `}
+                            >
+                              {name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* All Existing Teachers */}
+                    <div className="p-1">
+                      {filteredTeachers.length > 0 ? (
+                        <>
+                          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 py-1">
+                            {teacherQuery ? "Matching Faculty" : "Saved Faculty"}
+                          </div>
+                          {filteredTeachers.map((name) => {
+                            const isSelected = teacherName.toLowerCase() === name.toLowerCase();
+                            return (
+                              <button
+                                key={name}
+                                type="button"
+                                onClick={() => {
+                                  setTeacherName(name);
+                                  setIsTeacherDropdownOpen(false);
+                                }}
+                                className={`
+                                  w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg text-left transition-colors cursor-pointer
+                                  ${isSelected
+                                    ? "bg-indigo-600/20 text-indigo-300 font-semibold"
+                                    : "text-slate-200 hover:bg-slate-800 hover:text-white"
+                                  }
+                                `}
+                              >
+                                <span className="flex items-center gap-2 truncate">
+                                  <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] text-slate-300 shrink-0 font-medium">
+                                    {name.charAt(0).toUpperCase()}
+                                  </span>
+                                  <span className="truncate">{name}</span>
+                                </span>
+                                {isSelected && (
+                                  <Check className="w-4 h-4 text-indigo-400 shrink-0" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </>
+                      ) : (
+                        <div className="px-3 py-3 text-center text-xs text-slate-400">
+                          {isLoadingTeachers ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading teachers…
+                            </span>
+                          ) : teacherQuery ? (
+                            <span>No existing faculty matches &ldquo;{teacherName}&rdquo;.</span>
+                          ) : (
+                            <span>No previous faculty records found. Type to enter a new one.</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Option to use custom/new name if not already exact match */}
+                      {teacherQuery && !exactMatchExists && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsTeacherDropdownOpen(false);
+                          }}
+                          className="w-full mt-1 flex items-center gap-2 px-3 py-2 text-xs rounded-lg text-emerald-400 hover:bg-emerald-950/40 border border-dashed border-emerald-500/30 transition-colors text-left cursor-pointer"
+                        >
+                          <span className="font-semibold">+ Add &ldquo;{teacherName}&rdquo; as new teacher</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Pick Chips below the input (top frequent teachers) */}
+                {existingTeachers.length > 0 && (
+                  <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] text-slate-400 shrink-0">Quick select:</span>
+                    {existingTeachers.slice(0, 5).map((name) => (
+                      <button
+                        key={`chip-${name}`}
+                        type="button"
+                        onClick={() => {
+                          setTeacherName(name);
+                          setIsTeacherDropdownOpen(false);
+                        }}
+                        className={`
+                          text-[11px] px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer
+                          ${teacherName.toLowerCase() === name.toLowerCase()
+                            ? "bg-indigo-600 text-white font-semibold"
+                            : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60"
+                          }
+                        `}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Exam Year */}
