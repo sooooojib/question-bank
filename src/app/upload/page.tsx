@@ -73,7 +73,7 @@ const triggerCls =
   "w-full h-11 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm px-3 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-200 opacity-100";
 
 const contentCls =
-  "bg-slate-900 border border-slate-700 text-slate-100 shadow-2xl z-[100] opacity-100 backdrop-blur-none max-h-60 overflow-y-auto w-[var(--radix-select-trigger-width)] dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100";
+  "bg-slate-900 border border-slate-700 text-slate-100 shadow-2xl z-[100] opacity-100 backdrop-blur-none max-h-64 custom-scrollbar dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100";
 
 const labelCls =
   "flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5";
@@ -515,8 +515,7 @@ export default function UploadQuestionPage() {
                     className="
                       absolute left-0 right-0 z-50 mt-1.5
                       bg-slate-900 border border-slate-700/80 rounded-xl
-                      shadow-2xl overflow-hidden
-                      max-h-60 overflow-y-auto
+                      shadow-2xl max-h-60 overflow-y-auto custom-scrollbar
                       divide-y divide-slate-800
                     "
                   >
