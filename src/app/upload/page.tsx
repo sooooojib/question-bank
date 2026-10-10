@@ -587,47 +587,8 @@ export default function UploadQuestionPage() {
                     </div>
                   </div>
                 )}
-
-                {/* Quick select chips below input */}
-                {existingTeachers.length > 0 && (
-                  <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] text-slate-400 font-medium shrink-0">Quick select:</span>
-                    {existingTeachers.slice(0, 5).map((name) => {
-                      const isSelected = teacherName.toLowerCase() === name.toLowerCase();
-                      const initial = getFacultyInitial(name);
-                      return (
-                        <button
-                          key={`chip-${name}`}
-                          type="button"
-                          onClick={() => {
-                            setTeacherName(name);
-                            setIsTeacherDropdownOpen(false);
-                          }}
-                          className={`
-                            group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer
-                            ${isSelected
-                              ? "bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400 font-semibold"
-                              : "bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white hover:bg-slate-900"
-                            }
-                          `}
-                          title={name}
-                        >
-                          <span
-                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 ${
-                              isSelected
-                                ? "bg-white/20 text-white"
-                                : "bg-slate-800 text-slate-400 group-hover:text-slate-200"
-                            }`}
-                          >
-                            {initial}
-                          </span>
-                          <span className="truncate max-w-[130px] sm:max-w-[150px]">{name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
+
 
               {/* Exam Year */}
               <div>
