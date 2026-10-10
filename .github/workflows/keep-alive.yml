@@ -4,15 +4,27 @@ on:
   schedule:
     # Runs at 00:00 UTC every 3 days to prevent 7-day dormancy pause on free-tier Supabase
     - cron: '0 0 */3 * *'
-  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+  workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
 
 jobs:
-  ping:
+  ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping QuestionBank Health Endpoint
+      - name: Directly Query Supabase REST API (Zero Vercel Invocations)
         run: |
-          # Replace with your deployed Vercel/production URL once deployed, or set SITE_URL secret
-          TARGET_URL="${{ secrets.PRODUCTION_URL || 'https://question-bank-sepia.vercel.app' }}/api/health"
-          echo "Pinging $TARGET_URL to keep database active..."
-          curl -s -f "$TARGET_URL" || echo "Ping request executed."
+          SUPABASE_URL="${{ secrets.SUPABASE_URL || 'https://hkzgxgxlpckcqrjyphzd.supabase.co' }}"
+          SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhremd4Z3hscGNrY3FyanlwaHpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mzc0ODQsImV4cCI6MjEwMTQxMzQ4NH0.kGIo9xaV4LFjVhhD5M93dupEW0RadJZ1ccM_J4O-xpc' }}"
+          
+          echo "Pinging Supabase API directly (bypassing Vercel)..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "$SUPABASE_URL/rest/v1/batches?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          
+          echo "Supabase HTTP status response: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "Success: Supabase database is active and 7-day dormancy pause has been reset!"
+          else
+            echo "Warning: Received unexpected status $HTTP_STATUS"
+            exit 1
+          fi
