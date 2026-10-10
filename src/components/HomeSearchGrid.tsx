@@ -168,11 +168,9 @@ export default function HomeSearchGrid({ initialBatches }: HomeSearchGridProps) 
 
             return (
               <Link key={batch.id} href={`/batch/${batch.id}`} className="group block focus:outline-none">
-                <Card className="h-full relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 hover:border-indigo-400/60 dark:hover:border-indigo-500/50 shadow-md hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 transition-all duration-300">
-                  {/* Accent Top Border Glow on Hover */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
+                <Card className="h-full relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-700 dark:hover:border-slate-700/80 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
                   <CardHeader className="p-6">
+
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shrink-0">
                         <FolderKanban className="w-5 h-5" />
