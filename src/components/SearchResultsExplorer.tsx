@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import FileViewer from "@/components/FileViewer";
-import { FileText, User, Eye, FolderKanban } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FileText, User, Eye, FolderKanban, RotateCcw } from "lucide-react";
 import type { QuestionRecord } from "@/app/batch/[id]/page";
 import { formatBatchSemesterTag } from "@/lib/courses";
 import { getFacultyFullName } from "@/lib/faculty";
@@ -16,6 +17,7 @@ interface SearchResultsExplorerProps {
 }
 
 export default function SearchResultsExplorer({ questions, query }: SearchResultsExplorerProps) {
+  const router = useRouter();
   const [selectedQuestion, setSelectedQuestion] = useState<QuestionRecord | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
@@ -34,18 +36,55 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
     return "bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800";
   };
 
-  if (questions.length === 0) return null;
+  const handleClear = () => {
+    router.push("/");
+  };
+
+  if (questions.length === 0) {
+    return (
+      <div className="rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/60 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-5 shadow-xl backdrop-blur-md">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-950/60 border border-indigo-900/60 mx-auto flex items-center justify-center text-indigo-400">
+          <FileText className="w-7 h-7" />
+        </div>
+        <div className="space-y-1.5">
+          <h3 className="text-xl font-bold text-slate-100">No questions found</h3>
+          <p className="text-sm text-slate-400">
+            No past papers found for course &ldquo;<span className="text-slate-200 font-semibold">{query}</span>&rdquo;.
+          </p>
+        </div>
+        <Button
+          onClick={handleClear}
+          className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium cursor-pointer px-6 h-10 shadow-lg shadow-indigo-600/20"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Clear Search
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/80 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/60 dark:border-slate-800/80 pb-3">
         <h3 className="font-heading text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <FileText className="w-5 h-5 text-indigo-500" />
           <span>Found Questions for &ldquo;{query}&rdquo;</span>
         </h3>
-        <Badge variant="outline" className="px-3 py-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-medium">
-          {questions.length} Question{questions.length === 1 ? "" : "s"}
-        </Badge>
+        <div className="flex items-center gap-2.5">
+          <Badge variant="outline" className="px-3 py-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-medium">
+            {questions.length} Question{questions.length === 1 ? "" : "s"}
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClear}
+            className="rounded-xl border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white cursor-pointer text-xs h-8 px-3"
+            title="Reset to all batches"
+          >
+            <RotateCcw className="w-3.5 h-3.5 mr-1.5 text-indigo-400" />
+            Clear Search
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">

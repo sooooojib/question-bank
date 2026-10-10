@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Search, X, CornerDownLeft } from "lucide-react";
+import { Search, X, CornerDownLeft, RotateCcw } from "lucide-react";
 
 export default function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeQuery = searchParams.get("q") || "";
   const [query, setQuery] = useState(activeQuery);
+
+  // Keep local query state in sync if URL query is cleared/changed externally
+  useEffect(() => {
+    setQuery(activeQuery);
+  }, [activeQuery]);
 
   const executeSearch = (searchTerm: string) => {
     const trimmed = searchTerm.trim();
@@ -77,7 +82,7 @@ export default function SearchBar() {
                 executeSearch(query);
               }
             }}
-            placeholder="Search by course or faculty name... (Press Enter)"
+            placeholder="Search by course name... (Press Enter to search)"
             className="
               border-0 shadow-none focus-visible:ring-0 !bg-transparent
               text-sm text-slate-200
@@ -98,32 +103,48 @@ export default function SearchBar() {
             </button>
           )}
 
-          {query && (
+          {/* Clear Search Button inside searchbar */}
+          {(query || activeQuery) && (
             <button
               type="button"
               onClick={handleClear}
               aria-label="Clear search"
               className="
-                flex items-center justify-center w-6 h-6
-                rounded-lg text-slate-500 hover:text-slate-200
-                hover:bg-slate-700/60
-                transition-colors cursor-pointer shrink-0
+                inline-flex items-center gap-1.5 px-2.5 py-1
+                rounded-lg text-xs font-medium text-slate-300 hover:text-white
+                bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60
+                transition-all cursor-pointer shrink-0 shadow-sm
               "
+              title="Clear search and reset"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5 text-slate-400" />
+              <span>Clear</span>
             </button>
           )}
         </div>
       </form>
 
+      {/* Active Filter indicator with one-click Clear Search */}
       {activeQuery && (
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
-          Showing results for{" "}
-          <span className="font-semibold text-slate-200">
-            &ldquo;{activeQuery}&rdquo;
-          </span>
-        </p>
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-3 text-center">
+          <p className="text-xs text-slate-400">
+            Filtering course:{" "}
+            <span className="font-semibold text-slate-200">
+              &ldquo;{activeQuery}&rdquo;
+            </span>
+          </p>
+          <span className="text-slate-600 hidden sm:inline">•</span>
+          <button
+            type="button"
+            onClick={handleClear}
+            className="inline-flex items-center gap-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 hover:underline cursor-pointer"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Clear Search
+          </button>
+        </div>
       )}
     </div>
   );
 }
+

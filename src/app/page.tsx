@@ -38,23 +38,15 @@ async function getBatches(): Promise<BatchWithCount[]> {
   }
 }
 
-import { getFacultyFullName } from "@/lib/faculty";
-
 async function searchQuestions(searchQuery: string): Promise<QuestionRecord[]> {
   const clean = searchQuery.trim();
   if (!clean) return [];
 
   try {
-    const mappedFaculty = getFacultyFullName(clean);
-    let orQuery = `course_name.ilike.%${clean}%,teacher_name.ilike.%${clean}%`;
-    if (mappedFaculty && mappedFaculty.toLowerCase() !== clean.toLowerCase()) {
-      orQuery += `,teacher_name.ilike.%${mappedFaculty}%`;
-    }
-
     const { data: questions, error } = await supabase
       .from("questions")
       .select("*, batches(name)")
-      .or(orQuery)
+      .ilike("course_name", `%${clean}%`)
       .order("created_at", { ascending: false });
 
     if (error || !questions) {
