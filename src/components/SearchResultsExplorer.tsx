@@ -8,6 +8,7 @@ import FileViewer from "@/components/FileViewer";
 import { FileText, User, Eye, FolderKanban } from "lucide-react";
 import type { QuestionRecord } from "@/app/batch/[id]/page";
 import { formatBatchSemesterTag } from "@/lib/courses";
+import { getFacultyFullName } from "@/lib/faculty";
 
 interface SearchResultsExplorerProps {
   questions: QuestionRecord[];
@@ -76,7 +77,7 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
                     </h4>
                     <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
                       <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span>Faculty: {q.teacher_name}</span>
+                      <span>Faculty: {getFacultyFullName(q.teacher_name)}</span>
                     </p>
                   </div>
                 </div>

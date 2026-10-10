@@ -23,6 +23,7 @@ import {
   BookOpen,
   FolderKanban,
 } from "lucide-react";
+import { getFacultyFullName } from "@/lib/faculty";
 import type { QuestionRecord } from "@/app/batch/[id]/page";
 import { formatBatchSemesterTag } from "@/lib/courses";
 
@@ -219,7 +220,7 @@ export default function BatchQuestionExplorer({ questions, batchName }: BatchQue
                             </h3>
                             <p className="text-sm text-slate-500 flex items-center gap-1.5 mt-1">
                               <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span>Faculty: {q.teacher_name}</span>
+                              <span>Faculty: {getFacultyFullName(q.teacher_name)}</span>
                             </p>
                           </div>
                         </div>

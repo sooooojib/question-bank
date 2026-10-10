@@ -6,6 +6,11 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { uploadQuestion } from "@/app/actions";
 import { COURSE_LIST, SEMESTER_LABELS, type Course } from "@/lib/courses";
+import {
+  FACULTY_MEMBERS,
+  PRESET_FACULTY_NAMES,
+  getFacultyFullName,
+} from "@/lib/faculty";
 import { supabase } from "@/utils/supabase";
 
 import { Input } from "@/components/ui/input";
@@ -86,7 +91,7 @@ export default function UploadQuestionPage() {
 
   // State: Teacher / Faculty
   const [teacherName, setTeacherName] = useState<string>("");
-  const [existingTeachers, setExistingTeachers] = useState<string[]>([]);
+  const [existingTeachers, setExistingTeachers] = useState<string[]>(PRESET_FACULTY_NAMES);
   const [teacherRecords, setTeacherRecords] = useState<{ teacher_name: string; course_name: string }[]>([]);
   const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
   const [isLoadingTeachers, setIsLoadingTeachers] = useState(false);
@@ -142,10 +147,15 @@ export default function UploadQuestionPage() {
       if (!error && data) {
         setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
         const freqMap = new Map<string, number>();
+        // Initialize with all preset faculty full names
+        PRESET_FACULTY_NAMES.forEach((name) => {
+          freqMap.set(name, 1);
+        });
         data.forEach((row) => {
-          const name = row.teacher_name?.trim();
-          if (name) {
-            freqMap.set(name, (freqMap.get(name) || 0) + 1);
+          const rawName = row.teacher_name?.trim();
+          if (rawName) {
+            const fullName = getFacultyFullName(rawName);
+            freqMap.set(fullName, (freqMap.get(fullName) || 1) + 1);
           }
         });
 
@@ -174,10 +184,15 @@ export default function UploadQuestionPage() {
         if (!ignore && !error && data) {
           setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
           const freqMap = new Map<string, number>();
+          // Initialize with all preset faculty full names
+          PRESET_FACULTY_NAMES.forEach((name) => {
+            freqMap.set(name, 1);
+          });
           data.forEach((row) => {
-            const name = row.teacher_name?.trim();
-            if (name) {
-              freqMap.set(name, (freqMap.get(name) || 0) + 1);
+            const rawName = row.teacher_name?.trim();
+            if (rawName) {
+              const fullName = getFacultyFullName(rawName);
+              freqMap.set(fullName, (freqMap.get(fullName) || 1) + 1);
             }
           });
 
@@ -189,7 +204,7 @@ export default function UploadQuestionPage() {
           setExistingTeachers(unique);
         }
       } catch {
-        if (!ignore) setExistingTeachers([]);
+        if (!ignore) setExistingTeachers(PRESET_FACULTY_NAMES);
       } finally {
         if (!ignore) setIsLoadingTeachers(false);
       }
@@ -243,7 +258,7 @@ export default function UploadQuestionPage() {
                   cleanCourse.includes(selectedCourse.split("-")[0].trim().toLowerCase()))
               );
             })
-            .map((r) => r.teacher_name.trim())
+            .map((r) => getFacultyFullName(r.teacher_name.trim()))
             .filter(Boolean)
         )
       )
@@ -251,7 +266,16 @@ export default function UploadQuestionPage() {
 
   const teacherQuery = teacherName.trim().toLowerCase();
   const filteredTeachers = teacherQuery
-    ? existingTeachers.filter((t) => t.toLowerCase().includes(teacherQuery))
+    ? existingTeachers.filter((t) => {
+        const matchFull = t.toLowerCase().includes(teacherQuery);
+        const facultyMember = FACULTY_MEMBERS.find(
+          (f) => f.fullName.toLowerCase() === t.toLowerCase()
+        );
+        const matchCode = facultyMember
+          ? facultyMember.code.toLowerCase().includes(teacherQuery)
+          : false;
+        return matchFull || matchCode;
+      })
     : existingTeachers;
 
   const exactMatchExists = existingTeachers.some(
@@ -491,7 +515,7 @@ export default function UploadQuestionPage() {
                         setIsTeacherDropdownOpen(false);
                       }
                     }}
-                    placeholder="e.g. UKA (type or select existing)"
+                    placeholder="e.g. Prof. Dr. Uzzal Kumar Acharjee (type or select)"
                     autoComplete="off"
                     className={`${inputCls} pr-16`}
                   />
@@ -636,7 +660,7 @@ export default function UploadQuestionPage() {
                 {existingTeachers.length > 0 && (
                   <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                     <span className="text-[11px] text-slate-400 shrink-0">Quick select:</span>
-                    {existingTeachers.slice(0, 5).map((name) => (
+                    {existingTeachers.slice(0, 4).map((name) => (
                       <button
                         key={`chip-${name}`}
                         type="button"
@@ -645,12 +669,13 @@ export default function UploadQuestionPage() {
                           setIsTeacherDropdownOpen(false);
                         }}
                         className={`
-                          text-[11px] px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer
+                          text-[11px] px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer truncate max-w-[210px]
                           ${teacherName.toLowerCase() === name.toLowerCase()
                             ? "bg-indigo-600 text-white font-semibold"
                             : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60"
                           }
                         `}
+                        title={name}
                       >
                         {name}
                       </button>
