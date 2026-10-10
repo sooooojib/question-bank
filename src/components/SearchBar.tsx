@@ -95,30 +95,11 @@ export default function SearchBar() {
           {query.trim() && query.trim() !== activeQuery.trim() && (
             <button
               type="submit"
-              className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-950/80 border border-indigo-700/60 text-[10px] font-semibold text-indigo-300 hover:bg-indigo-900 cursor-pointer transition-colors shrink-0"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-950/80 border border-indigo-700/60 text-[10px] font-semibold text-indigo-300 hover:bg-indigo-900 cursor-pointer transition-colors shrink-0"
               title="Press Enter to search"
             >
               <span>Enter</span>
               <CornerDownLeft className="w-2.5 h-2.5" />
-            </button>
-          )}
-
-          {/* Clear Search Button inside searchbar */}
-          {(query || activeQuery) && (
-            <button
-              type="button"
-              onClick={handleClear}
-              aria-label="Clear search"
-              className="
-                inline-flex items-center gap-1.5 px-2.5 py-1
-                rounded-lg text-xs font-medium text-slate-300 hover:text-white
-                bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60
-                transition-all cursor-pointer shrink-0 shadow-sm
-              "
-              title="Clear search and reset"
-            >
-              <X className="w-3.5 h-3.5 text-slate-400" />
-              <span>Clear</span>
             </button>
           )}
         </div>

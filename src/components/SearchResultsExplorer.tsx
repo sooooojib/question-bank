@@ -14,9 +14,14 @@ import { getFacultyFullName } from "@/lib/faculty";
 interface SearchResultsExplorerProps {
   questions: QuestionRecord[];
   query: string;
+  onClear?: () => void;
 }
 
-export default function SearchResultsExplorer({ questions, query }: SearchResultsExplorerProps) {
+export default function SearchResultsExplorer({
+  questions,
+  query,
+  onClear,
+}: SearchResultsExplorerProps) {
   const router = useRouter();
   const [selectedQuestion, setSelectedQuestion] = useState<QuestionRecord | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -37,12 +42,16 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
   };
 
   const handleClear = () => {
-    router.push("/");
+    if (onClear) {
+      onClear();
+    } else {
+      router.push("/");
+    }
   };
 
   if (questions.length === 0) {
     return (
-      <div className="rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/60 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-5 shadow-xl backdrop-blur-md">
+      <div className="rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/60 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-5 shadow-xl backdrop-blur-md animate-in fade-in-50 duration-200">
         <div className="w-14 h-14 rounded-2xl bg-indigo-950/60 border border-indigo-900/60 mx-auto flex items-center justify-center text-indigo-400">
           <FileText className="w-7 h-7" />
         </div>
@@ -54,10 +63,10 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
         </div>
         <Button
           onClick={handleClear}
-          className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium cursor-pointer px-6 h-10 shadow-lg shadow-indigo-600/20"
+          className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium cursor-pointer px-6 h-10 shadow-lg shadow-indigo-600/20 active:scale-95 transition-transform"
         >
           <RotateCcw className="w-4 h-4 mr-2" />
-          Clear Search
+          Show All Batches
         </Button>
       </div>
     );
@@ -70,20 +79,10 @@ export default function SearchResultsExplorer({ questions, query }: SearchResult
           <FileText className="w-5 h-5 text-indigo-500" />
           <span>Found Questions for &ldquo;{query}&rdquo;</span>
         </h3>
-        <div className="flex items-center gap-2.5">
+        <div>
           <Badge variant="outline" className="px-3 py-1 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-medium">
             {questions.length} Question{questions.length === 1 ? "" : "s"}
           </Badge>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleClear}
-            className="rounded-xl border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white cursor-pointer text-xs h-8 px-3"
-            title="Reset to all batches"
-          >
-            <RotateCcw className="w-3.5 h-3.5 mr-1.5 text-indigo-400" />
-            Clear Search
-          </Button>
         </div>
       </div>
 
