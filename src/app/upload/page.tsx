@@ -10,6 +10,8 @@ import {
   FACULTY_MEMBERS,
   PRESET_FACULTY_NAMES,
   getFacultyFullName,
+  getFacultyInitial,
+  sortFacultyNames,
 } from "@/lib/faculty";
 import { supabase } from "@/utils/supabase";
 
@@ -145,25 +147,14 @@ export default function UploadQuestionPage() {
 
       if (!error && data) {
         setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
-        const freqMap = new Map<string, number>();
-        // Initialize with all preset faculty full names
-        PRESET_FACULTY_NAMES.forEach((name) => {
-          freqMap.set(name, 1);
-        });
+        const nameSet = new Set<string>(PRESET_FACULTY_NAMES);
         data.forEach((row) => {
           const rawName = row.teacher_name?.trim();
           if (rawName) {
-            const fullName = getFacultyFullName(rawName);
-            freqMap.set(fullName, (freqMap.get(fullName) || 1) + 1);
+            nameSet.add(getFacultyFullName(rawName));
           }
         });
-
-        const unique = Array.from(freqMap.keys()).sort((a, b) => {
-          const diff = (freqMap.get(b) || 0) - (freqMap.get(a) || 0);
-          if (diff !== 0) return diff;
-          return a.localeCompare(b);
-        });
-        setExistingTeachers(unique);
+        setExistingTeachers(sortFacultyNames(Array.from(nameSet)));
       }
     } catch {
       // ignore
@@ -182,25 +173,14 @@ export default function UploadQuestionPage() {
 
         if (!ignore && !error && data) {
           setTeacherRecords(data as { teacher_name: string; course_name: string }[]);
-          const freqMap = new Map<string, number>();
-          // Initialize with all preset faculty full names
-          PRESET_FACULTY_NAMES.forEach((name) => {
-            freqMap.set(name, 1);
-          });
+          const nameSet = new Set<string>(PRESET_FACULTY_NAMES);
           data.forEach((row) => {
             const rawName = row.teacher_name?.trim();
             if (rawName) {
-              const fullName = getFacultyFullName(rawName);
-              freqMap.set(fullName, (freqMap.get(fullName) || 1) + 1);
+              nameSet.add(getFacultyFullName(rawName));
             }
           });
-
-          const unique = Array.from(freqMap.keys()).sort((a, b) => {
-            const diff = (freqMap.get(b) || 0) - (freqMap.get(a) || 0);
-            if (diff !== 0) return diff;
-            return a.localeCompare(b);
-          });
-          setExistingTeachers(unique);
+          setExistingTeachers(sortFacultyNames(Array.from(nameSet)));
         }
       } catch {
         if (!ignore) setExistingTeachers(PRESET_FACULTY_NAMES);
@@ -243,16 +223,18 @@ export default function UploadQuestionPage() {
 
   const teacherQuery = teacherName.trim().toLowerCase();
   const filteredTeachers = teacherQuery
-    ? existingTeachers.filter((t) => {
-        const matchFull = t.toLowerCase().includes(teacherQuery);
-        const facultyMember = FACULTY_MEMBERS.find(
-          (f) => f.fullName.toLowerCase() === t.toLowerCase()
-        );
-        const matchCode = facultyMember
-          ? facultyMember.code.toLowerCase().includes(teacherQuery)
-          : false;
-        return matchFull || matchCode;
-      })
+    ? sortFacultyNames(
+        existingTeachers.filter((t) => {
+          const matchFull = t.toLowerCase().includes(teacherQuery);
+          const facultyMember = FACULTY_MEMBERS.find(
+            (f) => f.fullName.toLowerCase() === t.toLowerCase()
+          );
+          const matchCode = facultyMember
+            ? facultyMember.code.toLowerCase().includes(teacherQuery)
+            : false;
+          return matchFull || matchCode;
+        })
+      )
     : existingTeachers;
 
   const exactMatchExists = existingTeachers.some(
@@ -566,7 +548,7 @@ export default function UploadQuestionPage() {
                               >
                                 <span className="flex items-center gap-2 truncate">
                                   <span className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] text-slate-300 shrink-0 font-medium">
-                                    {name.charAt(0).toUpperCase()}
+                                    {getFacultyInitial(name)}
                                   </span>
                                   <span className="truncate">{name}</span>
                                 </span>
@@ -607,32 +589,6 @@ export default function UploadQuestionPage() {
                   </div>
                 )}
 
-                {/* Quick Pick Chips below the input (top frequent teachers) */}
-                {existingTeachers.length > 0 && (
-                  <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] text-slate-400 shrink-0">Quick select:</span>
-                    {existingTeachers.slice(0, 4).map((name) => (
-                      <button
-                        key={`chip-${name}`}
-                        type="button"
-                        onClick={() => {
-                          setTeacherName(name);
-                          setIsTeacherDropdownOpen(false);
-                        }}
-                        className={`
-                          text-[11px] px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer truncate max-w-[210px]
-                          ${teacherName.toLowerCase() === name.toLowerCase()
-                            ? "bg-indigo-600 text-white font-semibold"
-                            : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60"
-                          }
-                        `}
-                        title={name}
-                      >
-                        {name}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Exam Year */}
@@ -652,6 +608,54 @@ export default function UploadQuestionPage() {
                 />
               </div>
             </div>
+
+            {/* ── QUICK SELECT FACULTY (Full Width, perfectly aligned with card) ── */}
+            {existingTeachers.length > 0 && (
+              <div className="rounded-xl bg-slate-950/70 border border-slate-800/80 p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    <User className="w-3.5 h-3.5 text-indigo-400" />
+                    Quick Select Faculty
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium">Alphabetical order • 1-click fill</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {existingTeachers.slice(0, 8).map((name) => {
+                    const isSelected = teacherName.toLowerCase() === name.toLowerCase();
+                    const initial = getFacultyInitial(name);
+                    return (
+                      <button
+                        key={`quick-${name}`}
+                        type="button"
+                        onClick={() => {
+                          setTeacherName(name);
+                          setIsTeacherDropdownOpen(false);
+                        }}
+                        className={`
+                          group inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer
+                          ${isSelected
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-1 ring-indigo-400 font-semibold"
+                            : "bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 hover:text-white"
+                          }
+                        `}
+                        title={name}
+                      >
+                        <span
+                          className={`w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors ${
+                            isSelected
+                              ? "bg-white/20 text-white"
+                              : "bg-slate-800 border border-slate-700 group-hover:border-slate-600 text-slate-300"
+                          }`}
+                        >
+                          {initial}
+                        </span>
+                        <span className="truncate max-w-[200px]">{name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* ── 5. EXAM TYPE (Full Width) ── */}
             <div>

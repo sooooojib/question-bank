@@ -20,13 +20,44 @@ export const FACULTY_MEMBERS: Faculty[] = [
   { code: "MSH", fullName: "Dr. Md. Shakawat Hossain" },
   { code: "MAA", fullName: "Dr. Md. Ayub Ali" },
   { code: "GKS", fullName: "Goutam Kumar Saha" },
+  { code: "MOF", fullName: "Dr. Mohammad Omar Faruq" },
 ];
 
 /**
- * List of only the full names of all preexisting faculty members.
+ * Strips titles like "Prof. Dr.", "Prof.", "Dr.", "Professor" so names are sorted
+ * by actual person's name in alphabetical order.
  */
-export const PRESET_FACULTY_NAMES: string[] = FACULTY_MEMBERS.map(
-  (faculty) => faculty.fullName
+export function getSortableName(name: string): string {
+  if (!name) return "";
+  return name
+    .replace(/^(prof\.\s*dr\.|prof\.|dr\.|professor\s+dr\.|professor|engr\.)\s*/i, "")
+    .trim();
+}
+
+/**
+ * Gets the first initial letter of the person's name (ignoring academic titles).
+ */
+export function getFacultyInitial(name: string): string {
+  const clean = getSortableName(name);
+  return clean ? clean.charAt(0).toUpperCase() : "F";
+}
+
+/**
+ * Sorts faculty names strictly in alphabetical order by their actual name.
+ */
+export function sortFacultyNames(names: string[]): string[] {
+  return [...names].sort((a, b) => {
+    const aClean = getSortableName(a);
+    const bClean = getSortableName(b);
+    return aClean.localeCompare(bClean);
+  });
+}
+
+/**
+ * List of only the full names of all preexisting faculty members sorted alphabetically by real name.
+ */
+export const PRESET_FACULTY_NAMES: string[] = sortFacultyNames(
+  FACULTY_MEMBERS.map((faculty) => faculty.fullName)
 );
 
 /**
