@@ -238,55 +238,67 @@ export default function HomeSearchGrid({ initialBatches }: HomeSearchGridProps) 
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateBatch} className="space-y-4 py-2">
+          <form onSubmit={handleCreateBatch} className="space-y-4 pt-2">
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 Batch Number
               </label>
               <Input
-                type="number"
-                min={1}
-                max={99}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 required
                 value={batchNumber}
-                onChange={(e) => setBatchNumber(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "");
+                  if (val.length <= 3) setBatchNumber(val);
+                }}
                 placeholder="e.g. 14"
-                className="rounded-xl h-11 bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-600 text-sm focus-visible:ring-indigo-500"
+                className="rounded-xl h-11 bg-slate-950 border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm focus-visible:ring-indigo-500"
               />
 
               {/* Live preview */}
-              <div className={`
-                flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-200
+              <div
+                className={`
+                flex items-center gap-2 px-3.5 py-2.5 rounded-xl border transition-all duration-200
                 ${
                   previewName
                     ? "bg-indigo-950/60 border-indigo-800/60"
                     : "bg-slate-800/40 border-slate-700/50"
                 }
-              `}>
-                <span className="text-[11px] text-slate-500 font-medium">Preview:</span>
-                <span className={`text-sm font-bold ${ previewName ? "text-indigo-300" : "text-slate-600" }`}>
+              `}
+              >
+                <span className="text-xs text-slate-400 font-medium">Preview:</span>
+                <span
+                  className={`text-sm font-bold ${
+                    previewName ? "text-indigo-300" : "text-slate-500"
+                  }`}
+                >
                   {previewName ?? "CSE ??th Batch"}
                 </span>
               </div>
 
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-400">
                 Enter just the number — the name is generated automatically.
               </p>
             </div>
 
-            <DialogFooter className="pt-2 gap-2 sm:gap-0">
+            <DialogFooter className="pt-3 gap-3 sm:gap-3">
               <Button
                 type="button"
-                variant="ghost"
-                onClick={() => { setIsAddModalOpen(false); setBatchNumber(""); }}
-                className="rounded-xl h-11 text-slate-400 hover:bg-slate-800"
+                variant="outline"
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setBatchNumber("");
+                }}
+                className="rounded-xl h-11 px-5 border-slate-700 bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors cursor-pointer text-sm font-medium"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !previewName}
-                className="rounded-xl h-11 px-5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold text-sm shadow-md shadow-indigo-600/20"
+                className="rounded-xl h-11 px-6 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 disabled:opacity-50 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all cursor-pointer"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
