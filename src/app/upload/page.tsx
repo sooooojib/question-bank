@@ -297,7 +297,12 @@ export default function UploadQuestionPage() {
       const result = await uploadQuestion(formData);
       if (result.success) {
         toast.success(result.message ?? "Question paper uploaded successfully!");
+        const accessKeyInput = formElement.querySelector<HTMLInputElement>('input[name="access_key"]');
+        const savedKey = accessKeyInput?.value || "";
         formElement.reset();
+        if (accessKeyInput && savedKey) {
+          accessKeyInput.value = savedKey;
+        }
         setSelectedBatch("");
         setSelectedSemester("");
         setSelectedCourse("");
@@ -305,7 +310,6 @@ export default function UploadQuestionPage() {
         setExamType("");
         setSelectedFileName("");
         refreshTeachers();
-        setTimeout(() => router.push("/"), 1200);
       } else {
         toast.error(result.error ?? "Upload failed. Please try again.");
       }
