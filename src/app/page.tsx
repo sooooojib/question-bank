@@ -38,14 +38,23 @@ async function getBatches(): Promise<BatchWithCount[]> {
   }
 }
 
+import { getFacultyFullName } from "@/lib/faculty";
+
 async function searchQuestions(searchQuery: string): Promise<QuestionRecord[]> {
-  if (!searchQuery) return [];
+  const clean = searchQuery.trim();
+  if (!clean) return [];
 
   try {
+    const mappedFaculty = getFacultyFullName(clean);
+    let orQuery = `course_name.ilike.%${clean}%,teacher_name.ilike.%${clean}%`;
+    if (mappedFaculty && mappedFaculty.toLowerCase() !== clean.toLowerCase()) {
+      orQuery += `,teacher_name.ilike.%${mappedFaculty}%`;
+    }
+
     const { data: questions, error } = await supabase
       .from("questions")
       .select("*, batches(name)")
-      .ilike("course_name", `%${searchQuery}%`)
+      .or(orQuery)
       .order("created_at", { ascending: false });
 
     if (error || !questions) {
@@ -56,7 +65,7 @@ async function searchQuestions(searchQuery: string): Promise<QuestionRecord[]> {
       ...q,
       batch_name: Array.isArray(q.batches) ? q.batches[0]?.name : q.batches?.name || "",
     }));
-  } catch (err) {
+  } catch {
     return [];
   }
 }
