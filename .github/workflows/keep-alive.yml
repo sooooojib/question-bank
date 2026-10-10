@@ -5,6 +5,10 @@ on:
     # Runs at 00:00 UTC every 3 days to prevent 7-day dormancy pause on free-tier Supabase
     - cron: '0 0 */3 * *'
   workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
+  push:
+    paths:
+      - '.github/workflows/keep-alive.yml'
+
 
 jobs:
   ping-supabase:
