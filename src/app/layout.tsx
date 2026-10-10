@@ -19,7 +19,16 @@ export const metadata: Metadata = {
   title: "Question Bank",
   description:
     "Browse, search, and upload past exam questions organized by course, semester, and year. A premium university question bank.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
+
 
 export const viewport = {
   width: "device-width",

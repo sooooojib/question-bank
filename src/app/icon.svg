@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Rounded squircle container with dark slate background and subtle border -->
+  <rect width="64" height="64" rx="18" fill="#0b0f19" stroke="#334155" stroke-width="2"/>
+  
+  <!-- Subtle inner gradient / glow -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bg-gradient)" opacity="0.6"/>
+
+  <!-- Stack of 3 books with spine ribbons -->
+  <!-- Top book (narrow) -->
+  <rect x="18" y="17" width="28" height="8" rx="4" fill="#a5b4fc"/>
+  <rect x="23" y="17" width="4" height="8" rx="2" fill="#6366f1" opacity="0.75"/>
+
+  <!-- Middle book (medium) -->
+  <rect x="14" y="28" width="36" height="8" rx="4" fill="#818cf8"/>
+  <rect x="20" y="28" width="4" height="8" rx="2" fill="#4f46e5" opacity="0.75"/>
+
+  <!-- Bottom book (wide) -->
+  <rect x="10" y="39" width="44" height="8" rx="4" fill="#6366f1"/>
+  <rect x="17" y="39" width="4" height="8" rx="2" fill="#3730a3" opacity="0.75"/>
+
+  <defs>
+    <linearGradient id="bg-gradient" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0b0f19"/>
+    </linearGradient>
+  </defs>
+</svg>
